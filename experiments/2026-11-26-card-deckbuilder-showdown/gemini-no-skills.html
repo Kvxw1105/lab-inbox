@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>秘境尖塔 - 卡牌构筑小游戏</title>
+<style>
+:root{--bg-dark:#0d1017;--bg-panel:#161b26;--bg-card:#1f2636;--border:#2e384d;--text-main:#eef2f9;--text-dim:#8b9bb4;--atk:#e74c3c;--atk-glow:rgba(231,76,60,0.35);--skill:#3498db;--skill-glow:rgba(52,152,219,0.35);--power:#f1c40f;--power-glow:rgba(241,196,15,0.35);--poison:#2ecc71;--hp:#e03e52;--gold:#f1c40f;--energy:#3498db}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(ellipse at center,#1a2233 0%,#0d1017 70%);color:var(--text-main);min-height:100vh;overflow-x:hidden}
+#app{max-width:1100px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;background:var(--bg-panel);border:1px solid var(--border);padding:12px 20px;border-radius:12px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.logo{font-size:20px;font-weight:900;letter-spacing:1px}
+.logo span{color:var(--gold)}
+.stats{display:flex;gap:18px;font-size:14px;font-weight:700}
+.stat{display:flex;align-items:center;gap:6px}
+.stat .icon{font-size:18px}
+.hp-bar{width:120px;height:10px;background:#333;border-radius:5px;overflow:hidden}
+.hp-fill{height:100%;background:linear-gradient(90deg,#ff4d6d,#e03e52);transition:width 0.3s}
+.gold{color:var(--gold)}
+#battle-area{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px}
+.panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative}
+.enemy-area{text-align:center;min-height:260px;display:flex;flex-direction:column;justify-content:center}
+.enemy-emoji{font-size:96px;line-height:1;margin-bottom:12px;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5));transition:transform 0.2s}
+.enemy-emoji.hit{animation:shake 0.3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.enemy-name{font-size:22px;font-weight:900;margin-bottom:8px}
+.enemy-intent{font-size:13px;color:var(--text-dim);background:#0d1017;display:inline-block;padding:6px 12px;border-radius:20px;border:1px solid var(--border);margin-bottom:12px}
+.enemy-intent b{color:var(--atk)}
+.enemy-hp-wrap{max-width:280px;margin:0 auto}
+.enemy-hp-text{font-size:13px;margin-bottom:4px;color:var(--text-dim)}
+.enemy-hp-bar{height:12px;background:#222;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.enemy-hp-fill{height:100%;background:linear-gradient(90deg,#ff6b6b,#c0392b);transition:width 0.3s}
+.buffs{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.buff{font-size:12px;background:#2a3448;border:1px solid var(--border);padding:4px 8px;border-radius:6px}
+.player-area{display:flex;flex-direction:column;gap:12px}
+.player-info{display:flex;justify-content:space-between;align-items:center}
+.player-hp{flex:1}
+.player-hp-text{font-size:13px;margin-bottom:4px}
+.energy-display{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px}
+.energy-orb{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#5dade2,#2471a3);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #aed6f1;box-shadow:0 0 15px rgba(52,152,219,0.5)}
+.block-display{font-size:14px;background:#1a5276;padding:6px 10px;border-radius:8px}
+.log{background:#0d1017;border:1px solid var(--border);border-radius:8px;padding:10px;height:90px;overflow-y:auto;font-size:13px;line-height:1.6;color:var(--text-dim)}
+.log p{margin-bottom:2px}
+.log b{color:var(--text-main)}
+#hand-area{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+.hand-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.hand-title h3{font-size:16px}
+.hand-title span{font-size:13px;color:var(--text-dim)}
+#hand{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;min-height:170px;align-items:flex-end}
+.card{width:148px;min-height:165px;background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all 0.15s;position:relative;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-12px) scale(1.03);border-color:#fff;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:10}
+.card.atk{border-top:4px solid var(--atk)}
+.card.atk:hover{box-shadow:0 10px 25px var(--atk-glow)}
+.card.skill{border-top:4px solid var(--skill)}
+.card.skill:hover{box-shadow:0 10px 25px var(--skill-glow)}
+.card.power{border-top:4px solid var(--power)}
+.card.power:hover{box-shadow:0 10px 25px var(--power-glow)}
+.card.unplayable{opacity:0.45;cursor:not-allowed}
+.card.unplayable:hover{transform:none;box-shadow:none}
+.card-cost{position:absolute;top:-8px;left:-8px;width:28px;height:28px;border-radius:50%;background:var(--energy);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid #fff}
+.card-name{font-size:15px;font-weight:900;margin-bottom:6px;text-align:center}
+.card-type{font-size:11px;text-align:center;color:var(--text-dim);margin-bottom:8px}
+.card-desc{font-size:13px;line-height:1.5;flex:1;text-align:center}
+.card-desc b{color:#fff}
+.card-upgraded{color:var(--gold)}
+#end-turn-btn{display:block;margin:16px auto 0;padding:12px 36px;font-size:16px;font-weight:900;background:linear-gradient(135deg,#e67e22,#d35400);color:#fff;border:none;border-radius:30px;cursor:pointer;box-shadow:0 4px 15px rgba(230,126,34,0.4);transition:0.2s}
+#end-turn-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(230,126,34,0.6)}
+#end-turn-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+.modal{background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:700px;width:92%;max-height:85vh;overflow-y:auto;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+.modal h2{font-size:26px;margin-bottom:10px}
+.modal p{color:var(--text-dim);line-height:1.7;margin-bottom:16px}
+.reward-cards{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.btn{padding:12px 28px;font-size:15px;font-weight:800;border:none;border-radius:10px;cursor:pointer;background:#2e86c1;color:#fff;transition:0.2s;margin:4px}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.gold-btn{background:#b7950b}
+.btn.green-btn{background:#229954}
+.btn.red-btn{background:#922b21}
+.btn.gray-btn{background:#5d6d7e}
+.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.shop-item{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer}
+.shop-item:hover{border-color:var(--gold)}
+.shop-item .price{color:var(--gold);font-weight:900;margin-top:6px}
+.relic-list{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.relic{background:#2c2a1a;border:1px solid #7d6608;padding:6px 10px;border-radius:20px;font-size:13px}
+.deck-list{text-align:left;columns:2;font-size:13px;line-height:1.8;color:var(--text-dim);margin:12px 0}
+.hidden{display:none!important}
+.floor-indicator{font-size:13px;color:var(--text-dim)}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+<div class="logo">🏰 秘境尖塔 <span>· 卡牌构筑</span></div>
+<div class="stats">
+<span class="floor-indicator" id="floor-text">第 1 层 / 共 10 层</span>
+<span class="stat"><span class="icon">❤️</span><span class="hp-bar"><span class="hp-fill" id="hp-fill" style="width:100%"></span></span><span id="hp-text">80 / 80</span></span>
+<span class="stat gold"><span class="icon">🪙</span><span id="gold-text">99</span></span>
+<span class="stat"><span class="icon">🎒</span><span id="deck-count">10 张牌</span></span>
+</div>
+</header>
+<div id="battle-area">
+<div class="panel enemy-area">
+<div class="enemy-emoji" id="enemy-emoji">🦠</div>
+<div class="enemy-name" id="enemy-name">史莱姆</div>
+<div class="enemy-intent" id="enemy-intent">意图：未知</div>
+<div class="enemy-hp-wrap">
+<div class="enemy-hp-text" id="enemy-hp-text">HP 20 / 20</div>
+<div class="enemy-hp-bar"><div class="enemy-hp-fill" id="enemy-hp-fill" style="width:100%"></div></div>
+</div>
+<div class="buffs" id="enemy-buffs"></div>
+<div style="margin-top:14px;font-size:13px;color:var(--text-dim)">点击手牌打出卡牌，击败敌人后继续前进！</div>
+</div>
+<div class="panel player-area">
+<div class="player-info">
+<div class="player-hp" style="flex:1;margin-right:12px">
+<div class="player-hp-text">你的生命</div>
+<div class="hp-bar" style="width:100%"><div class="hp-fill" id="player-hp-fill" style="width:100%"></div></div>
+</div>
+<div class="energy-display">
+<div class="energy-orb" id="energy-text">3</div>
+<span style="font-size:13px;color:var(--text-dim)">能量</span>
+</div>
+<div class="block-display">🛡️ <span id="block-text">0</span> 格挡</div>
+</div>
+<div class="log" id="log"><p>欢迎来到秘境尖塔！点击手牌开始战斗。</p></div>
+<div>
+<div style="font-size:13px;color:var(--text-dim);margin-bottom:6px">遗物</div>
+<div class="relic-list" id="relic-list"><span style="color:var(--text-dim);font-size:13px">暂无遗物，击败精英可获得</span></div>
+</div>
+</div>
+</div>
+<div id="hand-area">
+<div class="hand-title"><h3>🃏 你的手牌</h3><span id="hand-info">抽牌堆 0 · 弃牌堆 0</span></div>
+<div id="hand"></div>
+<button id="end-turn-btn">结束回合 ⏎</button>
+</div>
+</div>
+<div id="modal" class="modal-overlay hidden">
+<div class="modal" id="modal-content"></div>
+</div>
+<script>
+(function(){
+"use strict";
+const CARD_POOL=[
+ {id:'strike',name:'打击',type:'atk',cost:1,desc:'造成 <b>6</b> 点伤害。',dmg:6},
+ {id:'strike_plus',name:'打击+',type:'atk',cost:1,desc:'造成 <b>9</b> 点伤害。',dmg:9,rare:1},
+ {id:'heavy',name:'重击',type:'atk',cost:2,desc:'造成 <b>11</b> 点伤害。',dmg:11},
+ {id:'slash',name:'横扫',type:'atk',cost:1,desc:'造成 <b>8</b> 点伤害。',dmg:8,rare:1},
+ {id:'pierce',name:'穿刺',type:'atk',cost:1,desc:'造成 <b>5</b> 点伤害，无视 <b>3</b> 点格挡。',dmg:5,pierce:3},
+ {id:'fireball',name:'火球术',type:'atk',cost:2,desc:'造成 <b>14</b> 点伤害。',dmg:14,rare:2},
+ {id:'defend',name:'防御',type:'skill',cost:1,desc:'获得 <b>5</b> 点格挡。',block:5},
+ {id:'defend_plus',name:'防御+',type:'skill',cost:1,desc:'获得 <b>8</b> 点格挡。',block:8,rare:1},
+ {id:'ironwall',name:'铁壁',type:'skill',cost:2,desc:'获得 <b>12</b> 点格挡。',block:12,rare:1},
+ {id:'dodge',name:'闪避',type:'skill',cost:1,desc:'获得 <b>4</b> 点格挡，抽 <b>1</b> 张牌。',block:4,draw:1},
+ {id:'heal',name:'治疗术',type:'skill',cost:1,desc:'恢复 <b>6</b> 点生命。',heal:6,rare:1},
+ {id:'rage',name:'狂怒',type:'power',cost:1,desc:'本回合伤害 <b>+3</b>。',buffAtk:3},
+ {id:'strength',name:'力量祝福',type:'power',cost:1,desc:'永久获得 <b>+2</b> 力量（本场战斗）。',str:2,rare:1},
+ {id:'poison_dagger',name:'毒刃',type:'atk',cost:1,desc:'造成 <b>4</b> 点伤害，施加 <b>3</b> 层中毒。',dmg:4,poison:3,rare:1},
+ {id:'double',name:'双重打击',type:'atk',cost:2,desc:'造成 <b>2</b> 次 <b>7</b> 点伤害。',dmg:7,hits:2,rare:2},
+ {id:'vampire',name:'吸血鬼之触',type:'atk',cost:2,desc:'造成 <b>8</b> 点伤害，恢复等量生命。',dmg:8,lifesteal:true,rare:2}
+];
+const ENEMIES=[
+ {emoji:'🦠',name:'史莱姆',hp:20,atk:6,gold:18},
+ {emoji:'🐺',name:'荒野狼',hp:28,atk:8,gold:22},
+ {emoji:'👺',name:'哥布林战士',hp:34,atk:9,gold:26},
+ {emoji:'🧟',name:'僵尸',hp:42,atk:10,gold:30},
+ {emoji:'👹',name:'精英 · 牛头怪',hp:58,atk:13,gold:45,elite:true},
+ {emoji:'🧛',name:'吸血鬼伯爵',hp:52,atk:12,gold:38},
+ {emoji:'🐍',name:'毒蛇女王',hp:60,atk:14,gold:42},
+ {emoji:'🧌',name:'巨魔',hp:70,atk:15,gold:48},
+ {emoji:'👁️',name:'精英 · 深渊之眼',hp:85,atk:17,gold:60,elite:true},
+ {emoji:'👑',name:'最终 BOSS · 巫妖王',hp:110,atk:20,gold:100,boss:true}
+];
+const RELICS=[
+ {name:'🩸 血瓶',desc:'每场战斗开始时恢复 8 点生命'},
+ {name:'⚔️ 磨刀石',desc:'所有攻击伤害 +2'},
+ {name:'🛡️ 坚固盾牌',desc:'每回合开始获得 3 点格挡'},
+ {name:'💰 金币袋',desc:'每场胜利额外获得 20 金币'},
+ {name:'🔥 火焰之心',desc:'每回合第一张攻击牌伤害 +4'}
+];
+let state={floor:1,maxFloor:10,hp:80,maxHp:80,gold:99,deck:[],drawPile:[],discardPile:[],hand:[],energy:3,maxEnergy:3,block:0,enemy:null,enemyHp:0,enemyBlock:0,enemyPoison:0,str:0,tempAtk:0,firstAtkBonusUsed:false,relics:[],gameOver:false};
+function cloneCard(c){return JSON.parse(JSON.stringify(c));}
+function getCard(id){return CARD_POOL.find(c=>c.id===id);}
+function initDeck(){state.deck=[];for(let i=0;i<5;i++)state.deck.push(cloneCard(getCard('strike')));for(let i=0;i<4;i++)state.deck.push(cloneCard(getCard('defend')));state.deck.push(cloneCard(getCard('heavy')));}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function hasRelic(name){return state.relics.some(r=>r.name===name);}
+const $=id=>document.getElementById(id);
+function log(msg){const el=$('log');const p=document.createElement('p');p.innerHTML=msg;el.appendChild(p);el.scrollTop=el.scrollHeight;}
+function updateUI(){
+ $('floor-text').textContent=`第 ${state.floor} 层 / 共 ${state.maxFloor} 层`;
+ $('hp-text').textContent=`${state.hp} / ${state.maxHp}`;
+ $('hp-fill').style.width=(state.hp/state.maxHp*100)+'%';
+ $('player-hp-fill').style.width=(state.hp/state.maxHp*100)+'%';
+ $('gold-text').textContent=state.gold;
+ $('deck-count').textContent=`${state.deck.length} 张牌`;
+ $('energy-text').textContent=state.energy;
+ $('block-text').textContent=state.block;
+ if(state.enemy){
+  $('enemy-emoji').textContent=state.enemy.emoji;
+  $('enemy-name').textContent=state.enemy.name;
+  $('enemy-hp-text').textContent=`HP ${Math.max(0,state.enemyHp)} / ${state.enemy.hp}`;
+  $('enemy-hp-fill').style.width=(Math.max(0,state.enemyHp)/state.enemy.hp*100)+'%';
+  let intent='';
+  if(state.enemy.intentAtk)intent=`意图：攻击 <b>${state.enemy.intentAtk}</b> 点`;else intent='意图：未知';
+  $('enemy-intent').innerHTML=intent;
+  let buffs='';
+  if(state.enemyPoison>0)buffs+=`<span class="buff">☠️ 中毒 ${state.enemyPoison}</span>`;
+  if(state.enemyBlock>0)buffs+=`<span class="buff">🛡️ 格挡 ${state.enemyBlock}</span>`;
+  if(state.str>0)buffs+=`<span class="buff">💪 力量 +${state.str}</span>`;
+  if(state.tempAtk>0)buffs+=`<span class="buff">🔥 狂怒 +${state.tempAtk}</span>`;
+  $('enemy-buffs').innerHTML=buffs;
+ }
+ $('hand-info').textContent=`抽牌堆 ${state.drawPile.length} · 弃牌堆 ${state.discardPile.length}`;
+ const rl=$('relic-list');
+ if(state.relics.length===0)rl.innerHTML='<span style="color:var(--text-dim);font-size:13px">暂无遗物，击败精英可获得</span>';
+ else rl.innerHTML=state.relics.map(r=>`<span class="relic" title="${r.desc}">${r.name}</span>`).join('');
+}
+function renderHand(){
+ const handEl=$('hand');handEl.innerHTML='';
+ state.hand.forEach((card,idx)=>{
+  const div=document.createElement('div');
+  div.className=`card ${card.type} ${card.cost>state.energy?'unplayable':''}`;
+  const typeName=card.type==='atk'?'攻击':card.type==='skill'?'技能':'能力';
+  div.innerHTML=`<div class="card-cost">${card.cost}</div><div class="card-name">${card.name}</div><div class="card-type">${typeName} · ${card.rare?'稀有':'普通'}</div><div class="card-desc">${card.desc}</div>`;
+  div.onclick=()=>playCard(idx);
+  handEl.appendChild(div);
+ });
+ if(state.hand.length===0)handEl.innerHTML='<p style="color:var(--text-dim);padding:40px">手牌已空，点击「结束回合」</p>';
+}
+function startFloor(){
+ state.block=0;state.str=0;state.tempAtk=0;state.firstAtkBonusUsed=false;
+ state.enemy=ENEMIES[state.floor-1];
+ state.enemyHp=state.enemy.hp;
+ state.enemyBlock=0;state.enemyPoison=0;
+ state.enemy.intentAtk=state.enemy.atk;
+ if(hasRelic('🩸 血瓶')){state.hp=Math.min(state.maxHp,state.hp+8);log('🩸 血瓶触发：恢复 8 点生命。');}
+ if(hasRelic('🛡️ 坚固盾牌')){state.block+=3;log('🛡️ 坚固盾牌：获得 3 点格挡。');}
+ state.drawPile=shuffle(state.deck.map(cloneCard));
+ state.discardPile=[];state.hand=[];
+ log(`<b>第 ${state.floor} 层：${state.enemy.name} 出现了！</b>`);
+ startTurn();
+ updateUI();renderHand();
+}
+function startTurn(){
+ state.energy=state.maxEnergy;
+ state.block=0;
+ if(hasRelic('🛡️ 坚固盾牌'))state.block+=3;
+ drawCards(5);
+ updateUI();renderHand();
+}
+function drawCards(n){
+ for(let i=0;i<n;i++){
+  if(state.drawPile.length===0){
+   if(state.discardPile.length===0)break;
+   state.drawPile=shuffle(state.discardPile);state.discardPile=[];
+   log('抽牌堆已洗回弃牌堆。');
+  }
+  state.hand.push(state.drawPile.pop());
+ }
+}
+function playCard(idx){
+ if(state.gameOver)return;
+ const card=state.hand[idx];
+ if(!card)return;
+ if(card.cost>state.energy){log('能量不足！');return;}
+ state.energy-=card.cost;
+ state.hand.splice(idx,1);
+ state.discardPile.push(card);
+ let bonus=state.str+state.tempAtk;
+ if(hasRelic('⚔️ 磨刀石')&&card.type==='atk')bonus+=2;
+ if(hasRelic('🔥 火焰之心')&&card.type==='atk'&&!state.firstAtkBonusUsed){bonus+=4;state.firstAtkBonusUsed=true;}
+ if(card.dmg){
+  const hits=card.hits||1;
+  for(let h=0;h<hits;h++){
+   let dmg=card.dmg+bonus;
+   let dealt=dmg;
+   if(card.pierce){let pierced=Math.min(card.pierce,state.enemyBlock);state.enemyBlock-=pierced;}
+   if(state.enemyBlock>0){let absorbed=Math.min(state.enemyBlock,dealt);state.enemyBlock-=absorbed;dealt-=absorbed;}
+   state.enemyHp-=dealt;
+   if(card.lifesteal){state.hp=Math.min(state.maxHp,state.hp+dealt);log(`🧛 吸血恢复 ${dealt} 点生命。`);}
+  }
+  log(`你打出 <b>${card.name}</b>，造成 <b>${(card.dmg+bonus)*(hits)}</b> 点伤害。`);
+  const em=$('enemy-emoji');em.classList.remove('hit');void em.offsetWidth;em.classList.add('hit');
+ }
+ if(card.poison){state.enemyPoison+=card.poison;log(`☠️ ${state.enemy.name} 获得 ${card.poison} 层中毒。`);}
+ if(card.block){state.block+=card.block;log(`你获得 <b>${card.block}</b> 点格挡。`);}
+ if(card.draw){drawCards(card.draw);log(`抽 ${card.draw} 张牌。`);}
+ if(card.heal){state.hp=Math.min(state.maxHp,state.hp+card.heal);log(`💚 恢复 ${card.heal} 点生命。`);}
+ if(card.buffAtk){state.tempAtk+=card.buffAtk;log(`🔥 本回合伤害 +${card.buffAtk}。`);}
+ if(card.str){state.str+=card.str;log(`💪 获得 +${card.str} 力量。`);}
+ updateUI();renderHand();
+ checkEnemyDeath();
+}
+function checkEnemyDeath(){
+ if(state.enemyHp<=0){
+  let goldGain=state.enemy.gold+(hasRelic('💰 金币袋')?20:0);
+  state.gold+=goldGain;
+  log(`🎉 击败了 ${state.enemy.name}！获得 ${goldGain} 金币。`);
+  if(state.floor>=state.maxFloor){showVictory();return;}
+  setTimeout(()=>showReward(),600);
+ }
+}
+function endTurn(){
+ if(state.gameOver)return;
+ $('end-turn-btn').disabled=true;
+ setTimeout(()=>{
+  if(state.enemyPoison>0){
+   state.enemyHp-=state.enemyPoison;
+   log(`☠️ 中毒造成 ${state.enemyPoison} 点伤害。`);
+   state.enemyPoison=Math.max(0,state.enemyPoison-1);
+   if(state.enemyHp<=0){updateUI();checkEnemyDeath();$('end-turn-btn').disabled=false;return;}
+  }
+  let atk=state.enemy.intentAtk;
+  let dmg=atk;
+  if(state.block>0){let absorbed=Math.min(state.block,dmg);state.block-=absorbed;dmg-=absorbed;}
+  if(dmg>0){state.hp-=dmg;log(`<b>${state.enemy.name}</b> 攻击你，造成 <b>${dmg}</b> 点伤害。`);}
+  else log(`<b>${state.enemy.name}</b> 的攻击被格挡了！`);
+  state.enemy.intentAtk=state.enemy.atk+Math.floor(Math.random()*4);
+  if(state.hp<=0){updateUI();showGameOver();return;}
+  state.discardPile.push(...state.hand);state.hand=[];
+  state.tempAtk=0;state.firstAtkBonusUsed=false;
+  log('—— 新的回合开始 ——');
+  startTurn();
+  $('end-turn-btn').disabled=false;
+ },500);
+}
+function randomRewardCards(){const pool=shuffle([...CARD_POOL]);return pool.slice(0,3);}
+function showReward(){
+ const isElite=!!state.enemy.elite;
+ const rewards=randomRewardCards();
+ const healAmt=8;
+ let html=`<h2>🎉 胜利！</h2><p>你击败了 ${state.enemy.name}，恢复 ${healAmt} 点生命，最大生命 +2。</p>`;
+ if(isElite){
+  const relic=RELICS[Math.floor(Math.random()*RELICS.length)];
+  state.relics.push(relic);
+  html+=`<p>⭐ 击败精英！获得遗物：<b>${relic.name}</b> —— ${relic.desc}</p>`;
+ }
+ html+=`<p>选择一张卡加入你的牌组：</p><div class="reward-cards">`;
+ rewards.forEach((c,i)=>{
+  const typeName=c.type==='atk'?'攻击':c.type==='skill'?'技能':'能力';
+  html+=`<div class="card ${c.type}" onclick="window.__pickReward(${i})" style="cursor:pointer"><div class="card-cost">${c.cost}</div><div class="card-name">${c.name}</div><div class="card-type">${typeName}</div><div class="card-desc">${c.desc}</div></div>`;
+ });
+ html+=`</div><button class="btn gray-btn" onclick="window.__skipReward()">跳过选牌</button>`;
+ window.__rewardCards=rewards;
+ $('modal-content').innerHTML=html;
+ $('modal').classList.remove('hidden');
+ state.hp=Math.min(state.maxHp+2,state.hp+healAmt);state.maxHp+=2;
+ updateUI();
+}
+window.__pickReward=function(i){const c=window.__rewardCards[i];state.deck.push(cloneCard(c));log(`获得新卡：<b>${c.name}</b>`);closeModal();nextStep();};
+window.__skipReward=function(){closeModal();nextStep();};
+function nextStep(){
+ state.floor++;
+ if(state.floor%3===0&&state.floor<state.maxFloor){showShop();}
+ else if(state.floor%4===1&&state.floor<state.maxFloor){showEvent();}
+ else{startFloor();}
+}
+function showShop(){
+ const items=shuffle([...CARD_POOL]).slice(0,3);
+ let html=`<h2>🛒 神秘商店</h2><p>你有 <b style="color:var(--gold)">${state.gold} 金币</b>。购买卡牌或移除一张牌（30 金币）。</p><div class="shop-grid">`;
+ items.forEach((c,i)=>{
+  const price=30+(c.rare||0)*15;
+  html+=`<div class="shop-item" onclick="window.__buyCard(${i},${price})"><b>${c.name}</b><div style="font-size:13px;color:var(--text-dim)">${c.desc}</div><div class="price">🪙 ${price}</div></div>`;
+ });
+ html+=`</div><button class="btn gold-btn" onclick="window.__removeCard()">移除一张牌（30 金币）</button><button class="btn" onclick="window.__leaveShop()">离开商店，继续前进</button>`;
+ window.__shopItems=items;
+ $('modal-content').innerHTML=html;
+ $('modal').classList.remove('hidden');
+}
+window.__buyCard=function(i,price){
+ if(state.gold<price){alert('金币不足！');return;}
+ state.gold-=price;
+ state.deck.push(cloneCard(window.__shopItems[i]));
+ log(`购买了 ${window.__shopItems[i].name}，花费 ${price} 金币。`);
+ updateUI();showShop();
+};
+window.__removeCard=function(){
+ if(state.gold<30){alert('金币不足！');return;}
+ if(state.deck.length<=1){alert('牌组只剩 1 张，不能移除！');return;}
+ state.gold-=30;
+ const removed=state.deck.splice(Math.floor(Math.random()*state.deck.length),1)[0];
+ log(`移除了卡牌：${removed.name}`);
+ updateUI();showShop();
+};
+window.__leaveShop=function(){closeModal();startFloor();};
+function showEvent(){
+ const events=[
+  {title:'⛲  healing 喷泉',text:'你发现一座古老的喷泉，泉水闪烁着微光。喝下它可以恢复 15 点生命，或者带走 40 金币。',opts:[['喝下泉水（+15 HP）',()=>{state.hp=Math.min(state.maxHp,state.hp+15);log('⛲ 恢复 15 点生命。');}],['带走金币（+40 金币）',()=>{state.gold+=40;log('⛲ 获得 40 金币。');}]]},
+  {title:'🧙 神秘巫师',text:'一位巫师愿意帮你强化一张随机卡牌（伤害/格挡 +3），或者给你 1 张随机稀有卡。',opts:[['强化随机卡',()=>{const c=state.deck[Math.floor(Math.random()*state.deck.length)];if(c.dmg)c.dmg+=3;if(c.block)c.block+=3;c.name+='+';log(`🧙 ${c.name} 被强化了！`);}],['获得稀有卡',()=>{const rares=CARD_POOL.filter(c=>c.rare===2);const c=cloneCard(rares[Math.floor(Math.random()*rares.length)]);state.deck.push(c);log(`🧙 获得稀有卡：${c.name}`);}]]},
+  {title:'💀 诅咒宝箱',text:'宝箱里有 60 金币，但似乎被诅咒了。打开它会失去 10 点生命。',opts:[['打开宝箱（+60 金币，-10 HP）',()=>{state.gold+=60;state.hp=Math.max(1,state.hp-10);log('💀 获得 60 金币，失去 10 点生命。');}],['离开',()=>{log('你离开了宝箱。');}]]}
+ ];
+ const ev=events[Math.floor(Math.random()*events.length)];
+ let html=`<h2>${ev.title}</h2><p>${ev.text}</p>`;
+ ev.opts.forEach((o,i)=>{html+=`<button class="btn" onclick="window.__eventChoice(${i})">${o[0]}</button>`;});
+ window.__event=ev;
+ $('modal-content').innerHTML=html;
+ $('modal').classList.remove('hidden');
+}
+window.__eventChoice=function(i){window.__event.opts[i][1]();updateUI();closeModal();startFloor();};
+function closeModal(){$('modal').classList.add('hidden');}
+function showVictory(){
+ state.gameOver=true;
+ $('modal-content').innerHTML=`<h2>🏆 通关！</h2><p>你击败了巫妖王，登上了秘境尖塔之巅！<br>最终牌组共 ${state.deck.length} 张牌，剩余生命 ${state.hp} / ${state.maxHp}，金币 ${state.gold}。</p><div class="deck-list">${state.deck.map(c=>c.name).join('<br>')}</div><button class="btn green-btn" onclick="location.reload()">再玩一次</button>`;
+ $('modal').classList.remove('hidden');
+}
+function showGameOver(){
+ state.gameOver=true;
+ $('modal-content').innerHTML=`<h2>💀 游戏结束</h2><p>你在第 ${state.floor} 层倒下了……<br>你击败了 ${state.floor-1} 个敌人，牌组共 ${state.deck.length} 张牌。</p><button class="btn red-btn" onclick="location.reload()">重新开始</button>`;
+ $('modal').classList.remove('hidden');
+}
+$('end-turn-btn').addEventListener('click',endTurn);
+function initGame(){
+ initDeck();
+ log('游戏开始！你的初始牌组有 5 张打击、4 张防御和 1 张重击。');
+ startFloor();
+}
+initGame();
+})();
+</script>
+</body>
+</html>

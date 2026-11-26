@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灰烬回响：深渊远征</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap');
+:root{--bg:#100e12;--panel:#1c1920;--panel2:#252029;--gold:#d6ae70;--gold2:#f3d9a4;--red:#c45d55;--blue:#79a8cf;--green:#8eb58c;--text:#e9dfd1;--muted:#938a83}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 25%,#30232b 0%,#17141a 48%,#0c0b0e 100%);color:var(--text);font-family:"Noto Serif SC",serif;min-height:100vh}
+button{font:inherit;cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
+#app{max-width:1180px;margin:auto;padding:18px}
+header{text-align:center;padding:14px 0 20px;border-bottom:1px solid #554331;margin-bottom:17px}
+.eyebrow{font-size:11px;letter-spacing:5px;color:var(--gold)}
+h1{margin:8px 0 2px;font-family:"Cinzel","Noto Serif SC",serif;font-size:clamp(25px,5vw,43px);letter-spacing:5px;color:var(--gold2);text-shadow:0 2px 25px #c58b4550}
+.subtitle{font-size:12px;color:#96877d;letter-spacing:3px}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:15px 0}
+.stat{background:#211d23;border:1px solid #51402f;border-radius:7px;padding:9px 15px;flex:1;min-width:105px;text-align:center}
+.stat small{display:block;color:var(--muted);font-size:11px}
+.stat strong{display:block;font-size:19px;color:var(--gold2);margin-top:2px}
+.progress{height:4px;background:#302932;border-radius:5px;overflow:hidden;margin:12px 0 18px}
+.progress div{height:100%;background:linear-gradient(90deg,#a65b48,#dfb56d);transition:.4s}
+.battle{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fighter{min-height:245px;background:linear-gradient(145deg,#272129,#17151b);border:1px solid #51402f;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:15px;overflow:hidden}
+.fighter.enemy{background:linear-gradient(145deg,#302027,#191419)}
+.fighter h3{font-size:16px;letter-spacing:2px;margin:6px}
+.portrait{font-size:75px;line-height:1.3;filter:drop-shadow(0 8px 15px #0009);transition:.2s}
+.enemy .portrait{filter:drop-shadow(0 0 20px #c4534c55)}
+.hpbar{width:min(80%,260px);height:9px;background:#40343a;border-radius:10px;overflow:hidden;margin:8px 0}
+.hpbar div{height:100%;background:linear-gradient(90deg,#a53c39,#e87864);transition:.3s}
+.hptext{font-size:12px;color:#c5b8ad}
+.intent{font-size:12px;color:var(--gold2);margin-top:10px;min-height:20px}
+.status{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.tag{padding:3px 7px;background:#37313b;border-radius:4px;font-size:11px;color:#c7b5a2}
+.tag.block{color:#9bc6e5}.tag.weak{color:#d58b83}.tag.vuln{color:#e8b873}
+.combat-info{text-align:center;padding:14px;margin:15px 0;background:#211d23;border:1px solid #44372e;border-radius:8px}
+.turnlabel{color:var(--gold);letter-spacing:3px;font-size:12px}
+.message{font-size:13px;color:#c9b9a6;margin-top:8px;min-height:20px}
+.hand-area{margin-top:15px}
+.hand-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.hand-title span{font-size:12px;color:var(--muted)}
+.hand{display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap;gap:12px;padding:8px 0 15px}
+.card{position:relative;width:142px;min-height:203px;border-radius:8px;border:1px solid #8d7352;background:linear-gradient(150deg,#393039,#211d25);display:flex;flex-direction:column;align-items:center;padding:10px 9px 12px;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 6px 15px #0006;color:var(--text)}
+.card:hover:not(.unplayable){transform:translateY(-10px);box-shadow:0 12px 22px #0009,0 0 12px #d5aa6140}
+.card.attack{border-color:#a35b50;background:linear-gradient(150deg,#482b2d,#241d24)}
+.card.skill{border-color:#6489a4;background:linear-gradient(150deg,#273e4b,#1e2029)}
+.card.power{border-color:#9e8b5a;background:linear-gradient(150deg,#46402b,#25202a)}
+.card.unplayable{filter:grayscale(.65);opacity:.55;cursor:not-allowed}
+.cost{position:absolute;left:-8px;top:-8px;width:30px;height:30px;border-radius:50%;background:#7aabca;color:#10202b;font-weight:900;display:grid;place-items:center;border:2px solid #c1d6e2;font-family:Cinzel}
+.card-icon{font-size:40px;margin:9px 0 5px}
+.card-name{font-weight:700;font-size:14px;color:var(--gold2)}
+.card-type{font-size:10px;color:#b2a398;margin:4px}
+.card-desc{font-size:12px;line-height:1.65;text-align:center;margin-top:8px;color:#e0d6cb}
+.card-hint{margin-top:auto;padding-top:8px;font-size:10px;color:#a89783}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+.btn{background:linear-gradient(140deg,#826344,#55402f);color:#fff0d8;border:1px solid #c19a65;border-radius:6px;padding:10px 22px;font-size:13px;letter-spacing:1px;transition:.2s}
+.btn:hover:not(:disabled){background:#a17a50;transform:translateY(-2px)}
+.btn.secondary{background:#29242b;border-color:#66564b;color:#d8c9b7}
+.btn.danger{background:#652d30;border-color:#a65c54}
+.section{background:#1d1920;border:1px solid #4d3e32;border-radius:9px;padding:16px;margin-top:16px}
+.section h3{color:var(--gold2);font-size:15px;margin:0 0 12px;letter-spacing:2px}
+.log{max-height:105px;overflow:auto;font-size:12px;color:#a89c91;line-height:1.9}
+.log p{margin:1px 0}
+.overlay{position:fixed;inset:0;background:#08070bea;z-index:10;display:flex;justify-content:center;align-items:center;padding:15px;overflow:auto}
+.modal{max-width:790px;width:100%;max-height:90vh;overflow:auto;background:linear-gradient(150deg,#29222a,#17141b);border:1px solid #95734e;border-radius:12px;padding:25px;text-align:center;box-shadow:0 20px 80px #000b}
+.modal h2{color:var(--gold2);letter-spacing:3px}
+.modal p{color:#b9aa9d;font-size:13px;line-height:1.8}
+.choices{display:flex;justify-content:center;gap:13px;flex-wrap:wrap;margin:20px 0}
+.choice{width:150px;display:flex;align-items:stretch}
+.choice .card{width:100%}
+.choice .card:hover{transform:translateY(-5px)}
+.hidden{display:none!important}
+.deckgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+.deckgrid .card{width:115px;min-height:165px;cursor:default}
+.deckgrid .card:hover{transform:none}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#33272a;border:1px solid #b98a60;padding:10px 20px;border-radius:6px;z-index:20;font-size:13px;animation:fade 2s forwards;pointer-events:none}
+@keyframes fade{0%{opacity:0;transform:translate(-50%,-10px)}15%,75%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+.shake{animation:shake .25s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(max-width:600px){#app{padding:10px}.fighter{min-height:200px}.portrait{font-size:55px}.card{width:calc(33.33% - 9px);min-width:100px;min-height:180px;padding:8px 5px}.card-icon{font-size:32px}.card-name{font-size:12px}.card-desc{font-size:11px}.hand{gap:8px}.modal{padding:17px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+ <div class="eyebrow">THE ABYSSAL CHRONICLES</div>
+ <h1>灰烬回响</h1>
+ <div class="subtitle">深 渊 远 征 · 一 场 命 运 的 构 筑</div>
+</header>
+<div class="topbar">
+ <div class="stat"><small>生命</small><strong id="hp">60 / 60</strong></div>
+ <div class="stat"><small>金币</small><strong id="gold">30</strong></div>
+ <div class="stat"><small>能量</small><strong id="energy">3 / 3</strong></div>
+ <div class="stat"><small>当前层数</small><strong id="floor">1 / 4</strong></div>
+ <div class="stat"><small>卡组规模</small><strong id="deckcount">10</strong></div>
+</div>
+<div class="progress"><div id="progress" style="width:0%"></div></div>
+<div class="battle">
+ <div class="fighter">
+  <div class="eyebrow">THE WANDERER</div>
+  <div class="portrait">🧙</div>
+  <h3>灰烬旅人</h3>
+  <div class="hpbar"><div id="playerbar"></div></div>
+  <div class="hptext" id="playerhp">60 / 60</div>
+  <div class="status" id="playerstatus"></div>
+ </div>
+ <div class="fighter enemy" id="enemybox">
+  <div class="eyebrow">ABYSSAL CREATURE</div>
+  <div class="portrait" id="enemyicon">👹</div>
+  <h3 id="enemyname">深渊爪牙</h3>
+  <div class="hpbar"><div id="enemybar"></div></div>
+  <div class="hptext" id="enemyhp">28 / 28</div>
+  <div class="intent" id="intent">⚔ 即将攻击：6</div>
+  <div class="status" id="enemystatus"></div>
+ </div>
+</div>
+<div class="combat-info">
+ <div class="turnlabel" id="turnlabel">第一回合 · 你的行动</div>
+ <div class="message" id="message">深渊的风吹来了，你握紧手中的牌。</div>
+</div>
+<div class="hand-area">
+ <div class="hand-title">
+  <strong>你的手牌</strong>
+  <span id="pileinfo">抽牌堆 5 · 弃牌堆 0</span>
+ </div>
+ <div class="hand" id="hand"></div>
+ <div class="controls">
+  <button class="btn" id="endturn" onclick="endTurn()">结束回合 ↗</button>
+  <button class="btn secondary" onclick="openDeck()">查看卡组</button>
+  <button class="btn secondary" onclick="openRules()">游戏规则</button>
+ </div>
+</div>
+<div class="section">
+ <h3>✦ 战斗记录</h3>
+ <div class="log" id="log"></div>
+</div>
+</div>
+<div class="overlay" id="overlay">
+ <div class="modal" id="modal"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const cardPool=[
+ {id:'strike',name:'斩击',icon:'⚔️',type:'attack',cost:1,desc:'造成 6 点伤害。',damage:6},
+ {id:'heavy',name:'重劈',icon:'🪓',type:'attack',cost:2,desc:'造成 12 点伤害。',damage:12},
+ {id:'guard',name:'铁壁',icon:'🛡️',type:'skill',cost:1,desc:'获得 7 点格挡。',block:7},
+ {id:'focus',name:'冥想',icon:'🔮',type:'skill',cost:1,desc:'抽取 2 张牌。',draw:2},
+ {id:'fire',name:'炎爆',icon:'🔥',type:'attack',cost:2,desc:'造成 15 点伤害。',damage:15},
+ {id:'leech',name:'噬血',icon:'🩸',type:'attack',cost:1,desc:'造成 5 点伤害，恢复 3 点生命。',damage:5,heal:3},
+ {id:'bash',name:'破甲',icon:'💥',type:'attack',cost:1,desc:'造成 5 点伤害，使敌人易伤 2 回合。',damage:5,vulnerable:2},
+ {id:'double',name:'疾风连斩',icon:'🌪️',type:'attack',cost:1,desc:'连续攻击两次，每次造成 4 点伤害。',damage:4,hits:2},
+ {id:'fortress',name:'绝对防御',icon:'🏰',type:'skill',cost:2,desc:'获得 15 点格挡。',block:15},
+ {id:'blood',name:'血之契约',icon:'❤️',type:'skill',cost:0,desc:'失去 3 点生命，获得 1 点能量并抽 1 张牌。',selfDamage:3,energy:1,draw:1},
+ {id:'soul',name:'灵魂收割',icon:'☠️',type:'attack',cost:2,desc:'造成 9 点伤害，恢复 5 点生命。',damage:9,heal:5},
+ {id:'thunder',name:'雷霆',icon:'⚡',type:'attack',cost:1,desc:'造成 8 点伤害。若敌人易伤，再造成 4 点。',damage:8,bonus:4},
+ {id:'meditate',name:'聚气',icon:'🌀',type:'skill',cost:0,desc:'获得 1 点格挡并抽取 1 张牌。',block:1,draw:1},
+ {id:'rage',name:'狂怒',icon:'👁️',type:'skill',cost:1,desc:'本回合下一次攻击伤害翻倍。',rage:true},
+ {id:'star',name:'星陨',icon:'🌠',type:'attack',cost:3,desc:'造成 25 点伤害。',damage:25},
+ {id:'mirror',name:'镜面反击',icon:'🪞',type:'skill',cost:1,desc:'获得 5 点格挡，反弹 5 点伤害。',block:5,reflect:5},
+ {id:'poison',name:'腐蚀',icon:'🧪',type:'attack',cost:1,desc:'造成 3 点伤害，使敌人虚弱 2 回合。',damage:3,weak:2}
+];
+const enemies=[
+ {name:'深渊爪牙',icon:'👹',hp:28,attack:6,gold:15},
+ {name:'腐化骑士',icon:'🗡️',hp:43,attack:9,gold:22},
+ {name:'深渊祭司',icon:'🧟',hp:54,attack:11,gold:28},
+ {name:'终焉巨龙',icon:'🐉',hp:110,attack:14,gold:60,boss:true}
+];
+let S={};
+let battleActive=false;
+let selectedCard=null;
+function newRun(){
+ S={hp:60,maxHp:60,gold:30,floor:1,turn:1,energy:3,maxEnergy:3,block:0,reflect:0,rage:false,playerWeak:0,enemy:null,enemyBlock:0,enemyVuln:0,enemyWeak:0,deck:[],draw:[],discard:[],hand:[],logs:[],relics:[],victories:0,phase:'battle'};
+ const starter=['strike','strike','strike','strike','strike','guard','guard','guard','focus','bash'];
+ starter.forEach(id=>S.deck.push({...clone(cardPool.find(c=>c.id===id)),uid:Math.random()}));
+ startBattle();
+}
+function log(t){S.logs.unshift(t);S.logs=S.logs.slice(0,30);$('log').innerHTML=S.logs.map(x=>'<p>› '+x+'</p>').join('');}
+function startBattle(){
+ const e=clone(enemies[S.floor-1]);
+ S.enemy={...e,maxHp:e.hp};
+ S.enemyBlock=0;S.enemyVuln=0;S.enemyWeak=0;
+ S.block=0;S.reflect=0;S.rage=false;
+ S.draw=clone(S.deck);shuffle(S.draw);
+ S.discard=[];S.hand=[];
+ S.turn=1;S.energy=S.maxEnergy;
+ battleActive=true;
+ drawCards(5);
+ planEnemy();
+ log('遭遇敌人：'+e.name+'。战斗开始！');
+ update();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function drawCards(n){
+ for(let i=0;i<n;i++){
+  if(S.hand.length>=10)break;
+  if(!S.draw.length){if(!S.discard.length)break;S.draw=S.discard;S.discard=[];shuffle(S.draw);log('弃牌堆洗入抽牌堆。');}
+  S.hand.push(S.draw.pop());
+ }
+}
+function planEnemy(){
+ let e=S.enemy;
+ if(e.boss && S.turn%3===0){e.intent={type:'big',damage:25,text:'☠ 龙息：25 点伤害'};}
+ else if(S.turn%3===0){e.intent={type:'buff',text:'✦ 蓄力：强化攻击'};}
+ else if(S.turn%2===0){e.intent={type:'defend',text:'🛡️ 防御：获得 8 点格挡'};}
+ else{e.intent={type:'attack',damage:e.attack+(e.boss&&S.turn%3===1?4:0),text:'⚔ 攻击：'+(e.attack+(e.boss&&S.turn%3===1?4:0))+' 点伤害'};}
+}
+function playCard(i){
+ if(!battleActive)return;
+ let c=S.hand[i];
+ if(!c||S.energy<c.cost)return;
+ S.energy-=c.cost;
+ S.hand.splice(i,1);
+ S.discard.push(c);
+ let dmg=c.damage||0;
+ let hits=c.hits||1;
+ if(dmg){
+  if(S.rage){dmg*=2;S.rage=false;log('狂怒生效！攻击伤害翻倍！');}
+  if(S.enemyVuln>0)dmg=Math.floor(dmg*1.5);
+  if(c.bonus&&S.enemyVuln>0)dmg+=c.bonus;
+  for(let j=0;j<hits;j++){
+   let actual=Math.max(0,dmg-S.enemyBlock);
+   let blocked=Math.min(dmg,S.enemyBlock);
+   S.enemyBlock-=blocked;
+   S.enemy.hp-=actual;
+   log(c.name+'造成 '+actual+' 点伤害。');
+   if(S.enemy.hp<=0)break;
+  }
+ }
+ if(c.block){S.block+=c.block;log('获得 '+c.block+' 点格挡。');}
+ if(c.heal){let h=Math.min(c.heal,S.maxHp-S.hp);S.hp+=h;log('恢复 '+h+' 点生命。');}
+ if(c.vulnerable){S.enemyVuln=Math.max(S.enemyVuln,c.vulnerable);log('敌人陷入易伤！');}
+ if(c.weak){S.enemyWeak=Math.max(S.enemyWeak,c.weak);log('敌人陷入虚弱！');}
+ if(c.draw)drawCards(c.draw);
+ if(c.energy)S.energy+=c.energy;
+ if(c.selfDamage){S.hp-=c.selfDamage;log('血之契约：失去 '+c.selfDamage+' 点生命。');}
+ if(c.rage){S.rage=true;log('进入狂怒状态，下一次攻击翻倍！');}
+ if(c.reflect)S.reflect+=c.reflect;
+ if(S.hp<=0){gameOver(false);return;}
+ if(S.enemy.hp<=0){victory();return;}
+ update();
+}
+function enemyAttack(dmg){
+ if(S.enemyWeak>0)dmg=Math.floor(dmg*.75);
+ let absorbed=Math.min(S.block,dmg);
+ S.block-=absorbed;
+ let actual=dmg-absorbed;
+ S.hp-=actual;
+ log('敌人攻击 '+dmg+' 点，格挡 '+absorbed+' 点，实际受到 '+actual+' 点伤害。');
+ if(S.reflect>0){let r=S.reflect;S.enemy.hp-=r;S.reflect=0;log('镜面反击造成 '+r+' 点伤害！');}
+}
+function endTurn(){
+ if(!battleActive)return;
+ S.hand.forEach(c=>S.discard.push(c));
+ S.hand=[];
+ const intent=S.enemy.intent;
+ if(intent.type==='attack'||intent.type==='big'){enemyAttack(intent.damage);}
+ else if(intent.type==='defend'){S.enemyBlock+=8;log('敌人获得 8 点格挡。');}
+ else{S.enemy.attack+=4;log('敌人蓄力，攻击力提高 4 点！');}
+ if(S.hp<=0){gameOver(false);return;}
+ if(S.enemy.hp<=0){victory();return;}
+ if(S.enemyVuln>0)S.enemyVuln--;
+ if(S.enemyWeak>0)S.enemyWeak--;
+ if(S.playerWeak>0)S.playerWeak--;
+ S.turn++;
+ S.block=0;S.reflect=0;S.rage=false;
+ S.energy=S.maxEnergy;
+ drawCards(5);
+ planEnemy();
+ log('第 '+S.turn+' 回合开始。');
+ update();
+}
+function victory(){
+ battleActive=false;
+ S.phase='reward';
+ S.gold+=S.enemy.gold;
+ S.victories++;
+ log('击败 '+S.enemy.name+'！获得 '+S.enemy.gold+' 金币。');
+ if(S.floor===4){gameOver(true);return;}
+ showRewards();
+}
+function gameOver(win){
+ battleActive=false;
+ S.phase='end';
+ showModal(`<div style="font-size:65px">${win?'🏆':'💀'}</div><div class="eyebrow">THE END OF YOUR JOURNEY</div><h2>${win?'深渊已被征服':'旅途终结'}</h2><p>${win?'你击败了终焉巨龙，灰烬终于迎来了黎明。':'你倒在了深渊之中，但你的传说不会就此结束。'}</p><p>击败敌人：${S.victories} / 4　·　最终金币：${S.gold}</p><button class="btn" onclick="newRun()">重新开始远征</button>`);
+ update();
+}
+function randomRewards(){
+ let pool=cardPool.filter(c=>!['strike','guard','focus'].includes(c.id));
+ let a=[];
+ while(a.length<3){let c=pool[Math.floor(Math.random()*pool.length)];if(!a.some(x=>x.id===c.id))a.push(clone(c));}
+ return a;
+}
+function showRewards(){
+ let rewards=randomRewards();
+ let html=`<div class="eyebrow">VICTORY · REWARD</div><h2>战利品</h2><p>敌人已经倒下。选择一张卡牌，加入你的构筑。</p><div class="choices">`;
+ rewards.forEach((c,i)=>{html+=`<div class="choice">${cardHTML(c,false,`chooseReward(${i})`)}</div>`;});
+ html+=`</div><p>金币：${S.gold}　生命：${S.hp}/${S.maxHp}</p><button class="btn secondary" onclick="skipReward()">放弃奖励，继续前进</button>`;
+ S.pendingRewards=rewards;
+ showModal(html);
+}
+function chooseReward(i){let c=clone(S.pendingRewards[i]);c.uid=Math.random();S.deck.push(c);log('获得新卡牌：'+c.name+'。');afterReward();}
+function skipReward(){afterReward();}
+function afterReward(){
+ if(S.floor===2||S.floor===3){showCamp();}
+ else{S.floor++;startBattle();closeModal();}
+}
+function showCamp(){
+ showModal(`<div class="eyebrow">THE LAST REFUGE</div><h2>篝火营地</h2><p>火焰映照着你的卡牌。你可以恢复生命，也可以强化一张卡牌。</p><div class="choices"><button class="btn" onclick="rest()">🔥 休息<br>恢复 15 点生命</button><button class="btn" onclick="chooseUpgrade()">⚒ 强化<br>升级一张卡牌</button><button class="btn secondary" onclick="openShop()">💰 商人<br>花费金币购买</button></div><button class="btn secondary" onclick="leaveCamp()">继续远征 →</button>`);
+}
+function rest(){let h=Math.min(15,S.maxHp-S.hp);S.hp+=h;log('篝火休息，恢复 '+h+' 点生命。');update();leaveCamp();}
+function chooseUpgrade(){
+ let cards=S.deck.filter(c=>c.damage||c.block);
+ if(!cards.length){toast('没有可强化的卡牌');return;}
+ let html='<h2>选择强化目标</h2><p>强化后伤害或格挡增加 50%，且卡牌费用可能降低。</p><div class="choices">';
+ cards.slice(0,30).forEach(c=>{html+=`<div class="choice">${cardHTML(c,false,`upgradeCard(${c.uid})`)}</div>`;});
+ html+='</div><button class="btn secondary" onclick="showCamp()">返回</button>';
+ showModal(html);
+}
+function upgradeCard(uid){
+ let c=S.deck.find(x=>x.uid===uid);
+ if(!c)return;
+ if(c.damage)c.damage=Math.ceil(c.damage*1.5);
+ if(c.block)c.block=Math.ceil(c.block*1.5);
+ if(c.id==='strike')c.name='精钢斩击';else c.name='强化·'+c.name;
+ c.upgraded=true;
+ log('强化卡牌：'+c.name+'。');
+ update();showCamp();
+}
+function openShop(){
+ showModal(`<h2>流浪商人</h2><p>商人只收金币。</p><div class="choices"><button class="btn" onclick="buyPotion()">🧪 药剂<br>恢复 15 点生命<br>15 金币</button><button class="btn" onclick="buyCard()">📜 随机卡牌<br>加入卡组<br>20 金币</button><button class="btn" onclick="buyRelic()">💎 古老遗物<br>最大生命 + 8<br>25 金币</button></div><p>当前金币：${S.gold}</p><button class="btn secondary" onclick="showCamp()">返回营地</button>`);
+}
+function buyPotion(){
+ if(S.gold<15){toast('金币不足');return;}
+ if(S.hp>=S.maxHp){toast('生命值已满');return;}
+ S.gold-=15;S.hp=Math.min(S.maxHp,S.hp+15);
+ log('购买药剂，恢复生命。');update();openShop();
+}
+function buyCard(){
+ if(S.gold<20){toast('金币不足');return;}
+ S.gold-=20;
+ let c=clone(cardPool[Math.floor(Math.random()*cardPool.length)]);
+ c.uid=Math.random();S.deck.push(c);
+ log('商人出售卡牌：'+c.name);update();openShop();
+}
+function buyRelic(){
+ if(S.gold<25){toast('金币不足');return;}
+ if(S.relics.includes('生命之种')){toast('已拥有此遗物');return;}
+ S.gold-=25;S.maxHp+=8;S.hp+=8;S.relics.push('生命之种');
+ log('获得遗物：生命之种，最大生命提高 8。');
+ update();openShop();
+}
+function leaveCamp(){S.floor++;startBattle();closeModal();}
+function cardHTML(c,disabled=true,onclick=''){
+ let type=c.type==='attack'?'attack':c.type==='skill'?'skill':'power';
+ let cname=c.type==='attack'?'攻击':c.type==='skill'?'技能':'能力';
+ let desc=c.desc;
+ if(c.upgraded){desc=(c.damage?'伤害 '+c.damage+'。':'')+(c.block?'格挡 '+c.block+'。':'');}
+ return `<div class="card ${type} ${disabled?'':'playable'}" onclick="${onclick}"><div class="cost">${c.cost}</div><div class="card-icon">${c.icon}</div><div class="card-name">${c.name}</div><div class="card-type">${cname}${c.upgraded?' · 强化':''}</div><div class="card-desc">${desc}</div><div class="card-hint">${c.cost} 能量</div></div>`;
+}
+function update(){
+ $('hp').textContent=S.hp+' / '+S.maxHp;
+ $('gold').textContent=S.gold;
+ $('energy').textContent=S.energy+' / '+S.maxEnergy;
+ $('floor').textContent=S.floor+' / 4';
+ $('deckcount').textContent=S.deck.length;
+ $('playerhp').textContent=S.hp+' / '+S.maxHp;
+ $('playerbar').style.width=Math.max(0,S.hp/S.maxHp*100)+'%';
+ $('enemyhp').textContent=Math.max(0,S.enemy.hp)+' / '+S.enemy.maxHp;
+ $('enemybar').style.width=Math.max(0,S.enemy.hp/S.enemy.maxHp*100)+'%';
+ $('enemyname').textContent=S.enemy.name;
+ $('enemyicon').textContent=S.enemy.icon;
+ $('intent').textContent=S.enemy.intent.text;
+ $('playerstatus').innerHTML=(S.block?`<span class="tag block">🛡 格挡 ${S.block}</span>`:'')+(S.rage?'<span class="tag vuln">狂怒</span>':'')+(S.relics.length?'<span class="tag">💎 '+S.relics.join(',')+'</span>':'');
+ $('enemystatus').innerHTML=(S.enemyBlock?`<span class="tag block">格挡 ${S.enemyBlock}</span>`:'')+(S.enemyVuln?`<span class="tag vuln">易伤 ${S.enemyVuln}</span>`:'')+(S.enemyWeak?`<span class="tag weak">虚弱 ${S.enemyWeak}</span>`:'');
+ $('turnlabel').textContent='第 '+S.turn+' 回合 · 你的行动';
+ $('pileinfo').textContent='抽牌堆 '+S.draw.length+' · 弃牌堆 '+S.discard.length;
+ $('progress').style.width=((S.floor-1)/4*100)+'%';
+ $('hand').innerHTML=S.hand.map((c,i)=>{let un=S.energy<c.cost||!battleActive;return cardHTML(c,false,`playCard(${i})`).replace('class="card ','class="card '+(un?'unplayable ':'')+'"');}).join('');
+ $('endturn').disabled=!battleActive;
+ $('message').textContent=battleActive?'选择卡牌，规划本回合的攻防。':'战斗已结束。';
+}
+function showModal(html){$('overlay').classList.remove('hidden');$('modal').innerHTML=html;}
+function closeModal(){$('overlay').classList.add('hidden');}
+function toast(t){let d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2100);}
+function openDeck(){
+ let html=`<h2>你的卡组 · ${S.deck.length} 张</h2><p>抽牌堆 ${S.draw.length} · 手牌 ${S.hand.length} · 弃牌堆 ${S.discard.length}</p><div class="deckgrid">${S.deck.map(c=>cardHTML(c,true)).join('')}</div><button class="btn secondary" onclick="closeModal()">关闭</button>`;
+ showModal(html);
+}
+function openRules(){
+ showModal(`<h2>远征手册</h2><p><b>能量：</b>每回合恢复 3 点，打出卡牌消耗对应能量。</p><p><b>格挡：</b>抵挡敌人攻击，回合结束后清零。</p><p><b>易伤：</b>敌人受到的攻击伤害提高 50%。</p><p><b>虚弱：</b>敌人的攻击伤害降低 25%。</p><p><b>卡组：</b>抽牌堆耗尽后，弃牌堆会重新洗牌。</p><p><b>胜利：</b>击败四层敌人，最终挑战终焉巨龙。</p><p><b>构筑：</b>战斗胜利后选择新卡，篝火处可以休息、强化或购物。</p><button class="btn" onclick="closeModal()">明白了</button>`);
+}
+newRun();
+showModal(`<div class="eyebrow">A NEW JOURNEY BEGINS</div><div style="font-size:65px;margin:15px">🔥</div><h2>灰烬回响</h2><p>王国已经沉入深渊。</p><p>四层黑暗，一条远征之路。</p><p>你只有一副初始卡组，以及一条尚未燃尽的生命。</p><p style="color:#d6ae70">构筑你的命运，杀死深渊的主人。</p><button class="btn" onclick="closeModal()">开始远征</button>`);
+</script>
+</body>
+</html>
