@@ -1,0 +1,15 @@
+{
+  "source": "/home/hatch/workspace/huashu-demo/math-error-quest/design-demos/app-a.png",
+  "size": [
+    840,
+    1760
+  ],
+  "blur_radius_px": 16.8,
+  "salient_regions": 8,
+  "hero_share": 0.694,
+  "competing_foci": 1,
+  "focus_rows_top_to_bottom": [
+    2
+  ],
+  "verdict_hint": "WEAK-cta-only-focus"
+}

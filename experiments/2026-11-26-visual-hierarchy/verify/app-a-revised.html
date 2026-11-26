@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:420px; height:880px; overflow:hidden; font-family:"Noto Sans CJK SC",sans-serif; background:#F4F8FB; color:#1A1A2E; }
+  /* 顶部信息条：全部降级——小、低对比、无白胶囊 */
+  .topbar{ padding:18px 24px 0; display:flex; justify-content:space-between; align-items:center; }
+  .who{ font-size:13px; color:#7A8794; font-weight:600; }
+  .who b{ color:#3D4A57; font-weight:800; }
+  .res{ font-size:12px; color:#93A1AE; font-weight:600; }
+  /* 唯一主角：深色英雄卡兜住「这页干嘛 + 当前关 + 唯一主按钮」 */
+  .hero{ margin:14px 20px 0; background:#1A1A2E; color:#fff; border-radius:26px; padding:24px 24px 22px; }
+  .hero .row{ display:flex; gap:16px; align-items:center; }
+  .hero .face{ font-size:64px; line-height:1; background:#FFB03A; border-radius:50%; width:92px; height:92px; display:flex; align-items:center; justify-content:center; flex:none; }
+  .hero .k{ font-size:12px; letter-spacing:3px; color:#FFB03A; font-weight:800; }
+  .hero .h{ font-size:27px; font-weight:900; line-height:1.35; margin-top:6px; }
+  .hero .d{ font-size:13px; color:#B9B9C7; margin-top:7px; line-height:1.55; }
+  .hero .cta{ margin-top:18px; background:#FF5A5F; color:#fff; text-align:center; font-size:17px; font-weight:900; padding:14px 0; border-radius:999px; }
+  .hero .meta{ text-align:center; font-size:12px; color:#8E8EA3; margin-top:9px; font-weight:600; }
+  /* 次级分组：单元进度一条细带，不再用大白卡抢眼 */
+  .unit{ margin:18px 24px 0; display:flex; justify-content:space-between; align-items:baseline; }
+  .unit .t{ font-size:15px; font-weight:800; }
+  .unit .m{ font-size:12px; color:#93A1AE; font-weight:600; }
+  .unitbar{ margin:9px 24px 0; height:6px; background:#E3EAF0; border-radius:99px; overflow:hidden; }
+  .unitbar i{ display:block; height:100%; width:67%; background:#7FB3D5; border-radius:99px; }
+  /* 路径组：统一弱化，已过/未到只用深浅区分，当前关用描边+标签，不再用饱和大橙球 */
+  .sec{ margin:20px 24px 0; font-size:13px; color:#7A8794; font-weight:700; letter-spacing:1px; }
+  .path{ margin:12px 24px 0; background:#fff; border:1px solid #E6EDF3; border-radius:20px; padding:18px 16px; display:flex; justify-content:space-between; align-items:center; }
+  .node{ text-align:center; }
+  .node .c{ width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800; margin:0 auto; }
+  .parent{ margin:16px 24px 0; border:1.5px dashed #D8E0E7; border-radius:18px; padding:15px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .parent .t{ font-size:14px; font-weight:800; }
+  .parent .d{ font-size:12px; color:#93A1AE; margin-top:3px; font-weight:600; }
+  .parent .go{ font-size:20px; color:#C9D3DB; }
+  .node .l{ font-size:11px; color:#93A1AE; margin-top:6px; font-weight:600; }
+  .done .c{ background:#E7F4EC; color:#5FA877; }
+  .now .c{ background:#fff; color:#1A1A2E; border:3px solid #FF5A5F; width:54px; height:54px; font-size:20px; }
+  .now .l{ color:#D93B40; font-weight:800; }
+  .todo .c{ background:#F0F3F6; color:#B3BEC8; }
+  .link{ color:#D5DDE4; font-size:18px; padding-bottom:22px; }
+  /* 底部导航：全员灰，仅当前项着色 */
+  .tabs{ position:absolute; bottom:0; left:0; right:0; display:flex; justify-content:space-around; padding:12px 10px 16px; font-size:12px; font-weight:700; color:#B5BEC7; background:#F4F8FB; }
+  .tabs .on{ color:#1A1A2E; }
+  .tabs div{ text-align:center; } .tabs .ic{ font-size:20px; display:block; margin-bottom:2px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="who"><b>小狮子队长</b> · 三年级上册 · 第 2 单元</div>
+    <div class="res">★ 128 &nbsp;◆ 36</div>
+  </div>
+
+  <div class="hero">
+    <div class="row">
+      <div class="face">🦁</div>
+      <div>
+        <div class="k">当前关卡 · 第 3 关</div>
+        <div class="h">跨零退位怪兽<br>503 − 278</div>
+        <div class="d">十位是 0，怎么借？今天专治这一类题。</div>
+      </div>
+    </div>
+    <div class="cta">开始闯关</div>
+    <div class="meta">约 8 分钟 · 6 道题</div>
+  </div>
+
+  <div class="unit"><div class="t">万以内的加减法</div><div class="m">易错点 6 个 · 已打掉 4 个 · 67%</div></div>
+  <div class="unitbar"><i></i></div>
+
+  <div class="sec">闯关路线</div>
+  <div class="path">
+    <div class="node done"><div class="c">1</div><div class="l">已过关 ★★★</div></div>
+    <div class="link">···</div>
+    <div class="node done"><div class="c">2</div><div class="l">已过关 ★★★</div></div>
+    <div class="link">···</div>
+    <div class="node now"><div class="c">3</div><div class="l">当前关</div></div>
+    <div class="link">···</div>
+    <div class="node todo"><div class="c">4</div><div class="l">未解锁</div></div>
+    <div class="link">···</div>
+    <div class="node todo"><div class="c">5</div><div class="l">未解锁</div></div>
+  </div>
+
+  <div class="parent">
+    <div><div class="t">家长小结</div><div class="d">本周进步与最弱的一类，每周日推送</div></div>
+    <div class="go">›</div>
+  </div>
+
+  <div class="tabs">
+    <div class="on"><span class="ic">⌂</span>闯关</div>
+    <div><span class="ic">↻</span>错题回炉</div>
+    <div><span class="ic">▦</span>成就</div>
+    <div><span class="ic">◯</span>我的</div>
+  </div>
+</body>
+</html>

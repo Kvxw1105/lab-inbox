@@ -1,0 +1,16 @@
+{
+  "source": "/home/hatch/workspace/research_notes/visual-hierarchy-20261126/verify/app-a-revised.png",
+  "size": [
+    420,
+    880
+  ],
+  "blur_radius_px": 8.4,
+  "salient_regions": 2,
+  "hero_share": 0.686,
+  "competing_foci": 2,
+  "focus_rows_top_to_bottom": [
+    0,
+    1
+  ],
+  "verdict_hint": "PASS"
+}
