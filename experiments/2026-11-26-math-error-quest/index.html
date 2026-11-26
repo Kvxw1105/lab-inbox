@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>易错题闯关 · 三年级数学</title>
+<style>
+:root{
+  --ink:#232038; --ink2:#5b567a; --paper:#fffdf7;
+  --orange:#ff7a29; --orange-d:#e85d0c; --purple:#6c4cf1; --purple-d:#5436d6;
+  --green:#1db954; --green-bg:#e3f8ea; --red:#e83a4e; --red-bg:#fde8eb;
+  --amber:#ffb020; --track:#eceaf6; --line:#e6e2f2;
+  --shadow-card:0 1px 2px rgb(35 32 56/.06),0 8px 24px rgb(35 32 56/.10),0 20px 48px rgb(108 76 241/.10);
+  --r-card:28px; --r-inner:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--ink); min-height:100dvh;
+  background:
+    radial-gradient(560px 380px at 110% -60px, rgb(255 176 32/.35), transparent 65%),
+    radial-gradient(640px 460px at -120px 30%, rgb(108 76 241/.28), transparent 65%),
+    linear-gradient(165deg,#fdf3e3 0%,#f3efff 55%,#e8f6ff 100%);
+  padding:18px 14px calc(28px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:480px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:not(:disabled):active{scale:.96}
+button{transition-property:scale,background-color,box-shadow;transition-duration:150ms;transition-timing-function:ease-out}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px;border-radius:8px}
+
+/* ---------- header / hero ---------- */
+.hero{padding:10px 6px 4px;text-align:center}
+.badge{display:inline-block;background:var(--ink);color:#fff;font-size:.78rem;font-weight:700;
+  letter-spacing:.06em;padding:6px 14px;border-radius:999px;box-shadow:0 4px 14px rgb(35 32 56/.25)}
+.hero h1{font-size:2.15rem;line-height:1.15;font-weight:900;margin:14px 0 8px;letter-spacing:.01em}
+.hero h1 .hl{color:var(--orange-d);position:relative;white-space:nowrap}
+.hero p{color:var(--ink2);font-size:.95rem;line-height:1.55}
+.total-stars{margin:14px auto 2px;display:flex;justify-content:center;gap:6px;align-items:center;
+  font-weight:800;color:var(--ink2);font-size:.9rem}
+.star{width:26px;height:26px;color:#d8d3ec;transition-property:color,scale;transition-duration:300ms;transition-timing-function:ease-out}
+.star.on{color:var(--amber);scale:1.12}
+
+/* ---------- level cards ---------- */
+.levels{display:grid;gap:14px;margin-top:16px}
+.level-card{background:var(--paper);border:1px solid transparent;border-radius:var(--r-card);
+  box-shadow:var(--shadow-card);padding:8px;text-align:left;width:100%;display:block}
+.level-in{border-radius:var(--r-inner);padding:18px 18px 16px;position:relative;overflow:hidden}
+.lv1 .level-in{background:linear-gradient(135deg,#fff1e2,#ffe3ec)}
+.lv2 .level-in{background:linear-gradient(135deg,#e9e4ff,#dff3ff)}
+.level-top{display:flex;align-items:center;gap:12px}
+.lv-num{width:52px;height:52px;flex:none;border-radius:18px;display:grid;place-items:center;
+  font-size:1.5rem;font-weight:900;color:#fff;box-shadow:0 6px 16px rgb(35 32 56/.22)}
+.lv1 .lv-num{background:linear-gradient(140deg,var(--orange),#ff4d7e)}
+.lv2 .lv-num{background:linear-gradient(140deg,var(--purple),#2f9df4)}
+.level-in h2{font-size:1.22rem;font-weight:900;line-height:1.3}
+.level-in .sub{color:var(--ink2);font-size:.86rem;margin-top:2px}
+.lv-stars{display:flex;gap:3px;margin-left:auto;flex:none}
+.lv-stars .star{width:20px;height:20px}
+.example{margin-top:14px;background:rgb(255 255 255/.75);border-radius:14px;padding:10px 14px;
+  font-size:1.05rem;font-weight:800;letter-spacing:.04em;font-variant-numeric:tabular-nums;
+  display:flex;justify-content:space-between;align-items:center}
+.example small{font-size:.75rem;color:var(--ink2);font-weight:600;letter-spacing:0}
+.go{margin-top:14px;width:100%;padding:14px;border-radius:16px;font-weight:900;font-size:1.02rem;color:#fff;
+  box-shadow:0 8px 20px rgb(35 32 56/.20)}
+.lv1 .go{background:linear-gradient(120deg,var(--orange),#ff4d7e)}
+.lv2 .go{background:linear-gradient(120deg,var(--purple),#2f9df4)}
+.level-card.done .go{background:linear-gradient(120deg,#21b573,#1db954)}
+.free-note{text-align:center;color:var(--ink2);font-size:.82rem;margin-top:14px}
+
+/* ---------- play screen ---------- */
+.screen{display:none}
+.screen.active{display:block;animation:screenIn 300ms ease-out}
+@keyframes screenIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back{width:44px;height:44px;flex:none;border-radius:14px;background:var(--paper);box-shadow:var(--shadow-card);
+  display:grid;place-items:center;font-size:1.15rem;font-weight:900}
+.topbar .t{font-weight:900;font-size:1.02rem;line-height:1.25}
+.topbar .t small{display:block;color:var(--ink2);font-weight:600;font-size:.78rem}
+.review-tag{background:var(--amber);color:#4a3200;font-size:.75rem;font-weight:900;
+  padding:5px 10px;border-radius:999px;margin-left:auto;flex:none}
+.progress{height:14px;background:var(--track);border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 3px rgb(35 32 56/.12)}
+.progress i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--amber),var(--orange));
+  transition-property:width;transition-duration:350ms;transition-timing-function:ease-out}
+.qmeta{display:flex;justify-content:space-between;color:var(--ink2);font-size:.85rem;font-weight:700;margin:8px 2px 12px}
+.qcard{background:var(--paper);border:1px solid transparent;border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:8px}
+.qin{border-radius:var(--r-inner);background:linear-gradient(160deg,#fff8ec,#f2efff);padding:22px 16px 18px;text-align:center}
+.column{display:inline-grid;grid-template-columns:.72em repeat(3,1.15em);font-size:2.9rem;font-weight:900;
+  line-height:1.12;font-variant-numeric:tabular-nums;letter-spacing:.02em;text-align:center}
+.column .op{position:relative}
+.column .op::before{content:attr(data-op);position:absolute;left:-.95em;top:0;font-size:.92em}
+.column .bar{grid-column:1/-1;border-top:4px solid var(--ink);border-radius:2px;margin:4px 0 2px}
+.qhint{color:var(--ink2);font-size:.88rem;margin-top:10px;font-weight:600}
+.answer-row{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px}
+.answer-box{min-width:150px;min-height:60px;background:#fff;border:2px solid var(--line);border-radius:16px;
+  font-size:1.9rem;font-weight:900;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center;
+  padding:6px 14px;letter-spacing:.06em}
+.answer-box.empty{color:#b9b4d6;font-size:1.05rem;font-weight:700;letter-spacing:0}
+.answer-box.ok{border-color:var(--green);background:var(--green-bg)}
+.answer-box.bad{border-color:var(--red);background:var(--red-bg)}
+.feedback{margin-top:14px;border-radius:16px;padding:13px 16px;font-size:.98rem;line-height:1.55;font-weight:700;display:none}
+.feedback.show{display:block;animation:fbIn 250ms ease-out}
+@keyframes fbIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.feedback.ok{background:var(--green-bg);color:#0c6b31}
+.feedback.bad{background:var(--red-bg);color:#9c1626}
+.feedback .tip{display:block;font-weight:600;margin-top:4px;color:inherit}
+.shake{animation:shake .4s ease-out}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px)}45%{transform:translateX(6px)}70%{transform:translateX(-4px)}}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.94)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.pad button{background:var(--paper);border-radius:18px;box-shadow:0 2px 0 var(--line),0 8px 18px rgb(35 32 56/.08);
+  font-size:1.55rem;font-weight:900;padding:13px 0;font-variant-numeric:tabular-nums}
+.pad button.util{font-size:1rem;color:var(--ink2)}
+.submit{margin-top:14px;width:100%;padding:16px;border-radius:18px;color:#fff;font-weight:900;font-size:1.1rem;
+  background:linear-gradient(120deg,var(--purple),#2f9df4);box-shadow:0 10px 24px rgb(84 54 214/.35)}
+.submit:disabled{opacity:.45;box-shadow:none;cursor:default}
+.next-btn{background:linear-gradient(120deg,#21b573,var(--green))!important;box-shadow:0 10px 24px rgb(29 185 84/.35)!important}
+
+/* ---------- done / summary ---------- */
+.done-hero{text-align:center;padding:22px 10px 6px}
+.done-hero .big{font-size:3.2rem;line-height:1}
+.done-stars{display:flex;justify-content:center;gap:8px;margin:14px 0 8px}
+.done-stars .star{width:46px;height:46px}
+.done-hero h2{font-size:1.55rem;font-weight:900}
+.done-hero p{color:var(--ink2);margin-top:6px;line-height:1.55}
+.panel{background:var(--paper);border:1px solid transparent;border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:8px;margin-top:16px}
+.panel-in{border-radius:var(--r-inner);padding:18px}
+.panel-in h3{font-size:1.08rem;font-weight:900;margin-bottom:12px}
+.mastery{margin-bottom:14px}
+.mastery:last-child{margin-bottom:2px}
+.mastery .row{display:flex;justify-content:space-between;font-size:.92rem;font-weight:700;margin-bottom:6px}
+.mastery .row span:last-child{color:var(--ink2);font-variant-numeric:tabular-nums}
+.mbar{height:12px;background:var(--track);border-radius:999px;overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#21b573,var(--green));
+  transition-property:width;transition-duration:450ms;transition-timing-function:ease-out}
+.mbar i.weak{background:linear-gradient(90deg,var(--orange),var(--amber))}
+.advice{background:#fff7e8;border-radius:14px;padding:12px 14px;font-size:.92rem;line-height:1.6;margin-top:6px}
+.locked-list{display:grid;gap:9px}
+.locked{display:flex;align-items:center;gap:11px;background:#f4f2fa;border-radius:14px;padding:12px 14px;color:#8a86a3}
+.locked .ic{width:34px;height:34px;flex:none;border-radius:11px;background:#e4e0f0;display:grid;place-items:center}
+.locked b{font-size:.95rem;color:#6f6a8c}
+.locked small{display:block;font-size:.78rem}
+.locked .tag{margin-left:auto;flex:none;font-size:.72rem;font-weight:800;background:#e4e0f0;padding:4px 9px;border-radius:999px}
+.soon{text-align:center;margin-top:14px;font-weight:900;color:var(--purple-d);
+  background:linear-gradient(120deg,#efeaff,#e2f2ff);border-radius:14px;padding:13px;font-size:.98rem}
+.big-btn{margin-top:16px;width:100%;padding:16px;border-radius:18px;color:#fff;font-weight:900;font-size:1.05rem;
+  background:linear-gradient(120deg,var(--orange),#ff4d7e);box-shadow:0 10px 24px rgb(232 93 12/.30)}
+.ghost-btn{margin-top:10px;width:100%;padding:14px;border-radius:18px;font-weight:800;color:var(--ink2);background:var(--paper);box-shadow:var(--shadow-card)}
+.foot{text-align:center;color:#9a96b5;font-size:.76rem;margin-top:22px;line-height:1.6}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  button:not(:disabled):active{scale:1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 首页 ===== -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <span class="badge">人教版 · 三年级上册 · 免费体验</span>
+      <h1>易错题<span class="hl">闯关</span></h1>
+      <p>专挑最容易丢分的题练。每关 8 题，3–5 分钟，<br>错了马上点破，错题自动回炉再练一遍。</p>
+      <div class="total-stars" id="totalStars"></div>
+    </div>
+    <div class="levels">
+      <div class="level-card lv1" id="card1">
+        <div class="level-in">
+          <div class="level-top">
+            <div class="lv-num">1</div>
+            <div><h2>退位减法不丢分</h2><div class="sub">万以内的减法 · 连续退位</div></div>
+            <div class="lv-stars" data-stars="1"></div>
+          </div>
+          <div class="example"><span>503 − 278 = ?</span><small>十位是 0，怎么借？</small></div>
+          <button class="go" data-go="1">开始闯关 →</button>
+        </div>
+      </div>
+      <div class="level-card lv2" id="card2">
+        <div class="level-in">
+          <div class="level-top">
+            <div class="lv-num">2</div>
+            <div><h2>进位加法要对齐</h2><div class="sub">万以内的加法 · 连续进位</div></div>
+            <div class="lv-stars" data-stars="2"></div>
+          </div>
+          <div class="example"><span>467 + 358 = ?</span><small>进的 1，别忘了加</small></div>
+          <button class="go" data-go="2">开始闯关 →</button>
+        </div>
+      </div>
+    </div>
+    <p class="free-note">两关全部打完，会生成一份给家长看的掌握度小结 ↓</p>
+    <p class="foot">题目由程序按易错点规则自动生成并逐题验算<br>免费版 v0 · 无需注册 · 不联网</p>
+  </section>
+
+  <!-- ===== 答题 ===== -->
+  <section class="screen" id="s-play">
+    <div class="topbar">
+      <button class="back" id="btnBack" aria-label="返回首页">‹</button>
+      <div class="t"><span id="playTitle"></span><small id="playSub"></small></div>
+      <span class="review-tag" id="reviewTag" hidden>错题回炉</span>
+    </div>
+    <div class="progress"><i id="progBar"></i></div>
+    <div class="qmeta"><span id="qCount"></span><span id="qTag"></span></div>
+    <div class="qcard" id="qcard"><div class="qin">
+      <div class="column" id="column"></div>
+      <div class="qhint" id="qHint"></div>
+      <div class="answer-row"><div class="answer-box empty" id="answerBox">点下方数字作答</div></div>
+      <div class="feedback" id="feedback"></div>
+    </div></div>
+    <div class="pad" id="pad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button data-k="C" class="util">清空</button><button data-k="0">0</button><button data-k="B" class="util">⌫ 删</button>
+    </div>
+    <button class="submit" id="btnSubmit" disabled>确 定</button>
+  </section>
+
+  <!-- ===== 单关完成 ===== -->
+  <section class="screen" id="s-done">
+    <div class="done-hero">
+      <div class="big" id="doneEmoji">🎉</div>
+      <div class="done-stars" id="doneStars"></div>
+      <h2 id="doneTitle"></h2>
+      <p id="doneText"></p>
+    </div>
+    <button class="big-btn" id="btnDoneMain"></button>
+    <button class="ghost-btn" id="btnDoneHome">回首页</button>
+  </section>
+
+  <!-- ===== 家长小结 ===== -->
+  <section class="screen" id="s-summary">
+    <div class="done-hero">
+      <div class="big">📋</div>
+      <h2 style="margin-top:10px">给家长看的掌握度小结</h2>
+      <p id="sumHead"></p>
+    </div>
+    <div class="panel"><div class="panel-in">
+      <h3>各类易错点掌握情况</h3>
+      <div id="masteryList"></div>
+      <div class="advice" id="advice"></div>
+    </div></div>
+    <div class="panel"><div class="panel-in">
+      <h3>完整寒假包 · 全册易错点地图</h3>
+      <div class="locked-list" id="lockedList"></div>
+      <div class="soon">完整版筹备中，敬请期待</div>
+    </div></div>
+    <button class="big-btn" id="btnAgain">再玩一遍 ↻</button>
+    <button class="ghost-btn" id="btnSumHome">回首页</button>
+    <p class="foot">免费版 v0 · 结算观察：孩子是否愿意点第二局</p>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+/* ================= 题目生成器（程序出题 + 程序验算，无手写题库） =================
+   约束由拒绝采样保证：生成的每道题都必须通过本关的易错点谓词才入选，
+   答案一律由 a∓b 计算得出，不存在手写答案。离线自检脚本用同一套函数跑批量验证。 */
+
+function digits(n){ return [n%10, Math.floor(n/10)%10, Math.floor(n/100)%10]; } // [个,十,百]
+
+function analyzeSub(a,b){
+  const [au,at,ah]=digits(a), [bu,bt,bh]=digits(b);
+  const borrowU = au < bu;
+  const effT = at - (borrowU?1:0);
+  const borrowT = effT < bt;
+  return { answer:a-b, borrowU, borrowT, borrowCount:(borrowU?1:0)+(borrowT?1:0),
+           zeroTens: at===0, continuous: borrowU && borrowT };
+}
+function analyzeAdd(a,b){
+  const [au,at]=digits(a), [bu,bt]=digits(b);
+  const carryU = au+bu >= 10;
+  const carryT = at+bt+(carryU?1:0) >= 10;
+  return { answer:a+b, carryU, carryT, carryCount:(carryU?1:0)+(carryT?1:0), continuous: carryU && carryT };
+}
+const ri=(lo,hi)=> lo + Math.floor(Math.random()*(hi-lo+1));
+
+function genSubOne(){
+  for(let t=0;t<500;t++){
+    const r=Math.random(); let a,b;
+    if(r<0.5){ // 含 0 连续退位：如 503−278
+      const ah=ri(2,9), au=ri(0,7);
+      a=ah*100+au; b=ri(1,ah-1)*100 + ri(1,9)*10 + ri(au+1,9);
+    }else if(r<0.82){ // 普通连续退位
+      const ah=ri(3,9), au=ri(0,8), at=ri(1,9);
+      a=ah*100+at*10+au; b=ri(1,ah-1)*100 + ri(at,9)*10 + ri(au+1,9);
+      if(at-1 >= Math.floor((b%100)/10)) continue; // 保证十位借后仍不够
+    }else{ // 单次退位
+      const ah=ri(2,9), at=ri(1,9), au=ri(0,9);
+      a=ah*100+at*10+au;
+      if(Math.random()<0.5){ b=ri(1,ah-1)*100 + ri(0,at-1)*10 + ri(au+1<=9?au+1:9,9); if(au===9) continue; }
+      else{ b=ri(1,ah-1)*100 + ri(at+1<=9?at+1:9,9)*10 + ri(0,au); if(at===9) continue; }
+    }
+    if(b>=a||b<100) continue;
+    const an=analyzeSub(a,b);
+    if(an.borrowCount<1) continue;
+    if(r<0.82 && !an.continuous) continue;
+    if(r>=0.82 && an.borrowCount!==1) continue;
+    return {a,b,...an};
+  }
+  return {a:503,b:278,...analyzeSub(503,278)}; // 兜底（同样由算法验算）
+}
+function genAddOne(){
+  for(let t=0;t<500;t++){
+    const r=Math.random(); let a,b;
+    if(r<0.6){ // 连续进位：如 467+358
+      const au=ri(4,9), at=ri(4,9), ah=ri(1,4);
+      a=ah*100+at*10+au;
+      const bu=ri(10-au,9), bt=ri(Math.max(0,9-at),9), bh=ri(0,8-ah);
+      b=bh*100+bt*10+bu;
+    }else{ // 单次进位
+      const au=ri(0,9), at=ri(0,9), ah=ri(1,5);
+      a=ah*100+at*10+au;
+      if(Math.random()<0.5){ b=ri(0,4)*100 + ri(0,9-at)*10 + ri(10-au<=9?10-au:9,9); if(au===0) continue; }
+      else{ b=ri(0,4)*100 + ri(10-at<=9?10-at:9,9)*10 + ri(0,9-au); if(at===9&&au===9) continue; }
+    }
+    if(b<100||a+b>999) continue;
+    const an=analyzeAdd(a,b);
+    if(an.carryCount<1) continue;
+    if(r<0.6 && !an.continuous) continue;
+    if(r>=0.6 && an.carryCount!==1) continue;
+    return {a,b,...an};
+  }
+  return {a:467,b:358,...analyzeAdd(467,358)};
+}
+function genLevel(kind){
+  const gen = kind===1?genSubOne:genAddOne, seen=new Set(), out=[];
+  while(out.length<8){
+    const q=gen(), key=q.a+"_"+q.b;
+    if(seen.has(key)) continue;
+    seen.add(key); out.push(q);
+  }
+  return out;
+}
+
+/* 易错点标签与点破话术（按题目结构生成，不是写死在题目上） */
+function tagAndTip(q, kind){
+  if(kind===1){
+    if(q.zeroTens && q.continuous) return { tag:"含 0 的连续退位",
+      tip:"十位是 0 不够借：先向百位借 1，十位变成 10，再从十位借 1 给个位。" };
+    if(q.continuous) return { tag:"连续退位（借两次）",
+      tip:"个位借完 1，十位就少了 1；十位不够减时，还要再向百位借 1 当 10。" };
+    if(q.borrowU) return { tag:"个位退位",
+      tip:"个位不够减，要向十位借 1 当 10 再减，别忘了十位要少 1。" };
+    return { tag:"十位退位",
+      tip:"十位不够减，要向百位借 1 当 10 再减，别忘了百位要少 1。" };
+  }
+  if(q.continuous) return { tag:"连续进位（进两次）",
+    tip:"个位满十向十位进 1，十位相加时别漏了这个 1；十位满十再向百位进 1。" };
+  if(q.carryU) return { tag:"个位进位",
+    tip:"个位满十要向十位进 1，算十位时最容易把这个 1 漏掉。" };
+  return { tag:"十位进位",
+    tip:"十位满十要向百位进 1；相同数位要对齐，从个位开始一位一位加。" };
+}
+
+/* ================= 状态 ================= */
+const LEVELS = {
+  1:{ title:"第 1 关 · 退位减法不丢分", sub:"万以内的减法", op:"−", hint:"从个位减起，不够减就向前一位借 1 当 10" },
+  2:{ title:"第 2 关 · 进位加法要对齐", sub:"万以内的加法", op:"+", hint:"相同数位对齐，从个位加起，满十就向前一位进 1" },
+};
+const state = {
+  stars:{1:0,2:0}, done:{1:false,2:false},
+  stats:{}, // tag -> {total, wrong}（只记首次作答）
+  level:0, queue:[], idx:0, input:"", locked:false,
+  firstWrong:[], reviewMode:false, reviewQueue:[], firstTryCorrect:0,
+};
+const $=id=>document.getElementById(id);
+const starSVG='<svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>';
+function renderHomeStars(){
+  document.querySelectorAll("[data-stars]").forEach(el=>{
+    const lv=+el.dataset.stars; el.innerHTML=[0,1,2].map(i=>
+      '<svg class="star'+(i<state.stars[lv]?" on":"")+'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>').join("");
+  });
+  const tot=state.stars[1]+state.stars[2];
+  $("totalStars").innerHTML=[0,1,2,3,4,5].map(i=>
+    '<svg class="star'+(i<tot?" on":"")+'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>').join("")
+    +"<span>已收集 "+tot+" / 6 颗星</span>";
+  $("card1").classList.toggle("done", state.done[1]);
+  $("card2").classList.toggle("done", state.done[2]);
+  document.querySelector('#card1 .go').textContent = state.done[1]?"再练一次 ↻":"开始闯关 →";
+  document.querySelector('#card2 .go').textContent = state.done[2]?"再练一次 ↻":"开始闯关 →";
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active"); window.scrollTo({top:0});
+}
+
+/* ================= 答题流程 ================= */
+function startLevel(lv){
+  state.level=lv; state.queue=genLevel(lv); state.idx=0;
+  state.firstWrong=[]; state.firstTryCorrect=0; state.reviewMode=false;
+  $("playTitle").textContent=LEVELS[lv].title; $("playSub").textContent=LEVELS[lv].sub;
+  show("s-play"); renderQ();
+}
+function curQ(){ return state.reviewMode? state.reviewQueue[state.idx] : state.queue[state.idx]; }
+function curTotal(){ return state.reviewMode? state.reviewQueue.length : state.queue.length; }
+function renderQ(){
+  const q=curQ(), lv=state.level, info=tagAndTip(q,lv);
+  state.input=""; state.locked=false;
+  $("reviewTag").hidden=!state.reviewMode;
+  $("progBar").style.width=(state.idx/curTotal()*100)+"%";
+  $("qCount").textContent=(state.reviewMode?"回炉 ":"第 ")+(state.idx+1)+" / "+curTotal()+" 题";
+  $("qTag").textContent="考点："+info.tag;
+  const [au,at,ah]=digits(q.a), [bu,bt,bh]=digits(q.b);
+  $("column").innerHTML=
+    "<span></span><span>"+ah+"</span><span>"+at+"</span><span>"+au+"</span>"+
+    '<span>'+LEVELS[lv].op+"</span><span>"+bh+"</span><span>"+bt+"</span><span>"+bu+"</span>"+
+    '<span class="bar"></span>';
+  $("qHint").textContent=LEVELS[lv].hint;
+  const box=$("answerBox"); box.textContent="点下方数字作答"; box.className="answer-box empty";
+  const fb=$("feedback"); fb.className="feedback"; fb.innerHTML="";
+  const btn=$("btnSubmit"); btn.disabled=true; btn.textContent="确 定"; btn.classList.remove("next-btn");
+  $("pad").style.visibility="visible";
+}
+function setInput(v){
+  state.input=v;
+  const box=$("answerBox");
+  box.textContent=v===""?"点下方数字作答":v;
+  box.classList.toggle("empty", v==="");
+  $("btnSubmit").disabled = v===""||state.locked;
+}
+$("pad").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b||state.locked) return;
+  const k=b.dataset.k;
+  if(k==="C") setInput("");
+  else if(k==="B") setInput(state.input.slice(0,-1));
+  else if(state.input.length<4) setInput(state.input+k);
+});
+document.addEventListener("keydown",e=>{
+  if(!$("s-play").classList.contains("active")) return;
+  if(/^[0-9]$/.test(e.key)&&!state.locked&&state.input.length<4) setInput(state.input+e.key);
+  else if(e.key==="Backspace"&&!state.locked) setInput(state.input.slice(0,-1));
+  else if(e.key==="Enter") $("btnSubmit").click();
+});
+$("btnSubmit").addEventListener("click",()=>{
+  if(state.locked){ advance(); return; }
+  if(state.input==="") return;
+  const q=curQ(), lv=state.level, info=tagAndTip(q,lv);
+  const val=parseInt(state.input,10), ok=val===q.answer;
+  const box=$("answerBox"), fb=$("feedback"), card=$("qcard");
+  state.locked=true; $("pad").style.visibility="hidden";
+  if(!state.reviewMode){ // 只统计首次作答
+    const s=state.stats[info.tag] ||= {total:0,wrong:0};
+    s.total++;
+    if(ok) state.firstTryCorrect++; else { s.wrong++; state.firstWrong.push(q); }
+  }
+  if(ok){
+    box.classList.add("ok"); card.classList.remove("shake"); void card.offsetWidth; card.classList.add("pop");
+    fb.className="feedback show ok";
+    fb.innerHTML="✅ 答对啦！"+q.a+" "+LEVELS[lv].op+" "+q.b+" = "+q.answer+"<span class='tip'>"+(state.reviewMode?"回炉成功，这个易错点拿下啦！":"继续保持，一位一位算清楚。")+"</span>";
+  }else{
+    box.classList.add("bad"); card.classList.remove("pop"); void card.offsetWidth; card.classList.add("shake");
+    fb.className="feedback show bad";
+    fb.innerHTML="❌ 差一点！正确答案是 "+q.answer+"。<span class='tip'>点破易错点："+info.tip+"</span>"
+      +(state.reviewMode?"":"<span class='tip'>别慌，这道题最后会自动回炉，再练一次。</span>");
+  }
+  const btn=$("btnSubmit"); btn.disabled=false; btn.classList.add("next-btn");
+  btn.textContent = state.idx+1>=curTotal() ? "完成 ✓" : "下一题 →";
+});
+function advance(){
+  state.idx++;
+  if(state.idx<curTotal()){ renderQ(); return; }
+  $("progBar").style.width="100%";
+  if(!state.reviewMode && state.firstWrong.length>0){
+    state.reviewMode=true; state.reviewQueue=state.firstWrong.slice(); state.idx=0;
+    setTimeout(()=>{ alert("有 "+state.reviewQueue.length+" 道错题要回炉重练一遍，练对了才算过关！"); renderQ(); },250);
+    return;
+  }
+  finishLevel();
+}
+function finishLevel(){
+  const lv=state.level, c=state.firstTryCorrect;
+  const stars = c>=7?3 : c>=5?2 : 1;
+  if(stars>state.stars[lv]) state.stars[lv]=stars;
+  state.done[lv]=true;
+  $("doneStars").innerHTML=[0,1,2].map(i=>
+    '<svg class="star'+(i<stars?" on":"")+'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>').join("");
+  $("doneEmoji").textContent = stars===3?"🏆":stars===2?"🎉":"💪";
+  $("doneTitle").textContent = "第 "+lv+" 关完成！";
+  $("doneText").innerHTML="首次答对 "+c+" / 8 题，错题已全部回炉练过。<br>"+
+    (stars===3?"太稳了，这一关的易错点基本拿下！":stars===2?"不错！再练一次，冲三星。":"没关系，易错点就是要多练两遍才记得牢。");
+  const other = lv===1?2:1;
+  if(!state.done[other]){
+    $("btnDoneMain").textContent="去闯第 "+other+" 关 →";
+    $("btnDoneMain").onclick=()=>startLevel(other);
+  }else{
+    $("btnDoneMain").textContent="查看家长小结 📋";
+    $("btnDoneMain").onclick=renderSummary;
+  }
+  renderHomeStars(); show("s-done");
+}
+
+/* ================= 家长小结 ================= */
+const LOCKED=[
+  ["时分秒","认钟表、时间换算与经过时间", "第 1 单元"],
+  ["测量","毫米、分米、千米与吨的换算", "第 3 单元"],
+  ["倍的认识","求一个数是另一个数的几倍", "第 5 单元"],
+  ["多位数乘一位数","进位乘法与中间有 0 的乘法", "第 6 单元"],
+  ["长方形和正方形","周长计算易错点", "第 7 单元"],
+  ["分数的初步认识","分母的含义与简单加减", "第 8 单元"],
+  ["可打印易错卷","按错题类型自动组卷，可打印", "寒假包专属"],
+  ["错题本导出","一学期错题汇总成册", "寒假包专属"],
+];
+function renderSummary(){
+  let tot=0, wrong=0;
+  Object.values(state.stats).forEach(s=>{ tot+=s.total; wrong+=s.wrong; });
+  $("sumHead").innerHTML="本次共练 "+tot+" 题（首次作答），答对 "+(tot-wrong)+" 题，错题均已回炉重练。";
+  const list=$("masteryList"); list.innerHTML="";
+  const entries=Object.entries(state.stats).sort((x,y)=> (y[1].wrong/y[1].total)-(x[1].wrong/x[1].total));
+  if(entries.length===0) list.innerHTML="<p style='color:var(--ink2)'>还没有答题记录，先去闯一关吧。</p>";
+  entries.forEach(([tag,s])=>{
+    const pct=Math.round((s.total-s.wrong)/s.total*100);
+    const d=document.createElement("div"); d.className="mastery";
+    d.innerHTML='<div class="row"><span>'+tag+'</span><span>错 '+s.wrong+' / '+s.total+' 次 · 掌握 '+pct+'%</span></div>'+
+      '<div class="mbar"><i class="'+(pct<70?"weak":"")+'" style="width:'+pct+'%"></i></div>';
+    list.appendChild(d);
+  });
+  const weak=entries.filter(([,s])=>s.wrong>0).map(([t])=>t);
+  $("advice").innerHTML = weak.length
+    ? "📌 <b>建议重点盯：</b>"+weak.join("、")+"。这类题不难，丢分多半是借位/进位后忘了改前一位——做完让孩子口头说一遍「借了没、进了没」，比多刷题更管用。"
+    : "🌟 本次没有错题，两类易错点都稳稳拿下。可以放心进入下一单元，寒假再用完整包做一次总复盘。";
+  $("lockedList").innerHTML=LOCKED.map(([t,s,u])=>
+    '<div class="locked"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><div><b>'+t+'</b><small>'+s+'</small></div><span class="tag">'+u+'</span></div>').join("");
+  show("s-summary");
+}
+
+/* ================= 绑定 ================= */
+document.querySelectorAll("[data-go]").forEach(b=> b.addEventListener("click",()=>startLevel(+b.dataset.go)));
+$("btnBack").addEventListener("click",()=>{ renderHomeStars(); show("s-home"); });
+$("btnDoneHome").addEventListener("click",()=>{ renderHomeStars(); show("s-home"); });
+$("btnSumHome").addEventListener("click",()=>{ renderHomeStars(); show("s-home"); });
+$("btnAgain").addEventListener("click",()=>{ state.stats={}; renderHomeStars(); show("s-home"); });
+renderHomeStars();
+</script>
+</body>
+</html>
